@@ -1,0 +1,71 @@
+# Maintainer: Maximilien Noal (noal dot maximilien at gmail dot com) [AUR: xcomcmdr]
+
+pkgname=touhy-git
+_gitname=touhy
+_resdir=touhydev
+pkgver=69.c2e9fda
+pkgrel=1
+pkgdesc="Elzen's desktop Environment"
+arch='any'
+license='GPL3'
+install='touhy.install'
+url='http://fadrienn.irlnc.org/touhy/'
+groups='touhy'
+depends=('udisks2' 'pygtk' 'python2-wnck' 'python2-notify' \
+  'python2-dbus' 'python2-numpy' 'python2-pyudev')
+makedepends='git'
+optdepends=('python2-imaging: display pixel size of image files'
+  'python2-mpd: MPD support'
+  'python2-poppler: PDF files thumbnails'
+  'python2-pyalsaaudio: set the audio volume'
+  'python2-pysqlite: Midori and Firefox bookmarks integration'
+  'python2-xlib: system tray'
+  'python-xklavier: read and modify the keyboard layout'
+  'vte: remote menus'
+  'xorg-xbacklight: set the screen backlight'
+  "elzdraw-git: Elzen's drawing program"
+  "elzedit-git: Elzen's text editor"
+  "elzfold-git: Elzen's file manager"
+  "elzgame-git: Elzen's games"
+  "elzhwcf-git: Elzen's settings manager"
+  "elzlist-git: Elzen's playlist manager"
+  "elznote-git: Elzen's calendar"
+  "elzplay-git: Elzen's media player"
+  "elzread-git: Elzen's document viewer"
+  "elzshow-git: Elzen's presentation reader"
+  "elzterm-git: Elzen's terminal emulator"
+  "elzview-git: Elzen's picture-viewer and quickviewer"
+  "elzword-git: Elzen's dictionnary")
+md5sums=('SKIP')
+source=('git://fadrienn.irlnc.org/touhy')
+
+pkgver() {
+  cd ${srcdir}/${_gitname}
+  echo $(git rev-list --count HEAD).$(git rev-parse --short HEAD)
+}
+
+package() {
+  cd ${srcdir}/${_gitname}
+  
+  mkdir -p ${pkgdir}/usr/bin
+  mkdir -p ${pkgdir}/usr/lib/python2.7/site-packages
+  mkdir -p ${pkgdir}/usr/share/${_resdir}
+  
+  cp -r resources/* ${pkgdir}/usr/share/${_resdir}
+  cp -r touhy ${pkgdir}/usr/lib/python2.7/site-packages
+  
+  for _file in `ls -l | grep -v "^d" | awk {'print $9'}`
+  do
+    install ${_file} ${pkgdir}/usr/bin
+  done
+
+  install -Dm 644 ${pkgdir}/usr/share/${_resdir}/appinfos/touhy.desktop \
+    ${pkgdir}/usr/share/xsessions/touhy.desktop
+
+  # remove applications, they have or will have their own PKGBUILD
+  cd ${pkgdir}/usr/bin
+  for _file in `ls elz*`
+  do
+    rm ${_file}
+  done
+}
